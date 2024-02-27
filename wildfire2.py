@@ -30,9 +30,9 @@ for device in tf.config.list_physical_devices():
 #======================================== DATA ACQUISITION & PREPROCESSING ===================================
 
 # Define directories
-train_dir = "/home/gerpapa/thesis/dataset/train"
-valid_dir = "/home/gerpapa/thesis/dataset/valid"
-test_dir = "/home/gerpapa/thesis/dataset/test"
+train_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/train"
+valid_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/valid"
+test_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/test"
 
 image_shape = (350,350,3)
 N_CLASSES = 2
