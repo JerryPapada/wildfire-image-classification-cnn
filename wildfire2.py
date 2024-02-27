@@ -106,7 +106,7 @@ first_model.compile(loss= 'categorical_crossentropy', optimizer= optimizer,metri
 
 # training
 history = first_model.fit(train_generator,
-                    epochs = 10,
+                    epochs = 20,
                     verbose = 1,
                     validation_data = valid_generator,
                     callbacks = [checkpointer, early_stopping])
@@ -165,7 +165,7 @@ ml_results = {
         "precision": precision,
         "recall": recall,
         "f1_score": f1,
-        #"classification_report": report
+        "classification_report": report
     }
 }
 
