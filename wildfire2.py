@@ -5,8 +5,6 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten, Dropout, BatchNormalization, Conv2D, MaxPooling2D
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-from sklearn.model_selection import GridSearchCV
-from scikeras.wrappers import KerasClassifier
 
 import numpy as np
 from telegram import Bot
@@ -19,7 +17,8 @@ async def send_telegram_message(bot_token, chat_id, message):
     await bot.send_message(chat_id=chat_id, text=message)
 
 #============================= DATA ACQUISITION & PREPROCESSING =============================
-image_shape = (350,350,3)
+image_shape = (128,128,3)
+target_size = (128,128)
 
 def preprocessing(batch_size):
     # Define directories
@@ -33,7 +32,7 @@ def preprocessing(batch_size):
     train_datagen = ImageDataGenerator(dtype='float32', rescale= 1./255.)
     train_generator = train_datagen.flow_from_directory(train_dir,
                                                     batch_size = BATCH_SIZE,
-                                                    target_size = (350,350),
+                                                    target_size = target_size,
                                                     class_mode = 'categorical',
                                                     shuffle=True)
 
@@ -41,7 +40,7 @@ def preprocessing(batch_size):
     valid_datagen = ImageDataGenerator(dtype='float32', rescale= 1./255.)
     valid_generator = valid_datagen.flow_from_directory(valid_dir,
                                                         batch_size = BATCH_SIZE,
-                                                        target_size = (350,350),
+                                                        target_size = target_size,
                                                         class_mode = 'categorical',
                                                         shuffle=True)
 
@@ -49,7 +48,7 @@ def preprocessing(batch_size):
     test_datagen = ImageDataGenerator(dtype='float32', rescale = 1.0/255.0)
     test_generator = test_datagen.flow_from_directory(test_dir,
                                                     batch_size = BATCH_SIZE,
-                                                    target_size = (350,350),
+                                                    target_size = target_size,
                                                     class_mode = 'categorical',
                                                     shuffle=True)
 
@@ -59,7 +58,7 @@ def preprocessing(batch_size):
 #============================= MODEL ARCHITECURE ================================
 def create_model():
     # defining the coefficient that our regularizer will use
-    weight_decay = 1e-3
+    weight_decay = 0.001
 
     # building a sequential CNN model and adding layers to it
     # dropout and the regularizer are used in general to prevent overfitting
@@ -75,20 +74,21 @@ def create_model():
         
         Dropout(0.4),
         Flatten(),
-        Dense(300,activation='relu'),
+        Dense(128,activation='relu'),
         Dropout(0.5),
         Dense(2,activation='sigmoid')
     ])
-
-    model.compile(loss= 'binary_crossentropy', optimizer='adam',metrics=['AUC','acc'])
-
+    print(model.summary())
     return model
 
 #================================== GRID SEARCH =================================
 def grid_search(model):
+    model.compile(loss= 'binary_crossentropy', optimizer='adam',metrics=['AUC','acc'])
     # grid search parameters
+    #epochs = [5,10,20,30]
+    #batch_size = [16,32,64,128,256]
     epochs = [1]
-    batch_size = [16]
+    batch_size = [32]
     best_parameters = {}
     best_score = 0
 
@@ -182,7 +182,7 @@ def evaluate_model(model, generators):
 #================================= MAIN =================================
 
 async def main():
-    #generators = preprocessing(32)
+    generators = preprocessing(32)
     model = create_model()
     #train_model(model, generators)
     #ml_results = evaluate_model(model, generators)
