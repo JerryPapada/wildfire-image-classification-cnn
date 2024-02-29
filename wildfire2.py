@@ -85,11 +85,10 @@ def create_model():
 def grid_search(model):
     model.compile(loss= 'binary_crossentropy', optimizer='adam',metrics=['AUC','acc'])
     # grid search parameters
-    #epochs = [5,10,20,30]
-    #batch_size = [16,32,64,128,256]
-    epochs = [1]
-    batch_size = [32]
+    epochs = [100, 200, 300, 500]
+    batch_size = [16,32,64,128,256]
     best_parameters = {}
+    best_results = {}
     best_score = 0
 
     # grid search execution
@@ -104,9 +103,11 @@ def grid_search(model):
             if(results["result"]["accuracy"] > best_score):
                 best_score = results["result"]["accuracy"]
                 best_parameters = {"batch_size": batch, "epochs": epoch}
+                best_results = results
     
     grid_results = {
-        "best_parameters" : best_parameters
+        "best_parameters" : best_parameters,
+        "results" : best_results
     }
     
     return grid_results
@@ -127,7 +128,7 @@ def train_model(model, generators):
 
     # training
     history = model.fit(train_generator,
-                        epochs = 1, # change this
+                        epochs = 100, # change this
                         verbose = 1,
                         validation_data = valid_generator,
                         callbacks = [checkpointer, early_stopping])
@@ -184,11 +185,11 @@ def evaluate_model(model, generators):
 async def main():
     generators = preprocessing(32)
     model = create_model()
-    #train_model(model, generators)
-    #ml_results = evaluate_model(model, generators)
-    grid_results = grid_search(model)
+    train_model(model, generators)
+    ml_results = evaluate_model(model, generators)
+    #grid_results = grid_search(model)
 
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", grid_results)
+    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results)
 
 
 if __name__ == "__main__":
