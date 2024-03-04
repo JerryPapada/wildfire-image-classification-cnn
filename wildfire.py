@@ -46,9 +46,9 @@ def delete_truncated_images(directory):
     print(f"Deleted {deleted_count} truncated images.")
 
 # Define directories
-train_dir = "/home/gerpapa/thesis/dataset/train"
-valid_dir = "/home/gerpapa/thesis/dataset/valid"
-test_dir = "/home/gerpapa/thesis/dataset/test"
+train_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/dfire/train"
+#valid_dir = "/home/gerpapa/thesis/dataset/valid"
+test_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/dfire/test"
 
 # Delete truncated images in training directory
 #delete_truncated_images(train_dir)
@@ -69,7 +69,8 @@ train_datagen = ImageDataGenerator(
     height_shift_range=0.2,
     shear_range=0.2,
     zoom_range=0.2,
-    horizontal_flip=True
+    horizontal_flip=True,
+    validation_split=0.2,
 )
 
 # ImageDataGenerator for validation and test data (no augmentation)
@@ -82,16 +83,18 @@ train_generator = train_datagen.flow_from_directory(
     target_size=(64, 64),  
     batch_size=16,
     class_mode='binary',
-    shuffle=True
+    shuffle=True,
+    subset='training'
 )
 
 # Flow validation images in batches of 32 using valid_datagen generator
 valid_generator = valid_datagen.flow_from_directory(
-    valid_dir,
+    train_dir,
     target_size=(64, 64),
     batch_size=16,
     class_mode='binary',
-    shuffle=True
+    shuffle=True,
+    subset='validation'
 )
 
 # Flow testing images in batches of 32 using test_datagen generator
@@ -169,12 +172,23 @@ history = model.fit(
 test_loss, test_accuracy = model.evaluate(test_generator, steps=len(test_generator))
 print("Test Accuracy:", test_accuracy)
 
-# Make predictions on the test set
-predictions = model.predict(test_generator, steps=len(test_generator))
-predictions = np.round(predictions).flatten()
-
 # Get true labels of the test set
 test_true_labels = test_generator.classes
+
+# Make predictions on the test set
+predictions = model.predict(test_generator, steps=len(test_generator), verbose=1)
+predictions = np.round(predictions).flatten()
+
+# Ensure that predictions are trimmed to match the length of the true labels
+predictions = predictions[:len(test_true_labels)]
+
+# Print the length of predictions after trimming
+print("Length of predictions after trimming:", len(predictions))
+
+# Print lengths of true labels and predictions
+print("Length of true labels:", len(test_true_labels))
+print("Length of predictions:", len(predictions))
+
 
 # Calculate evaluation metrics
 accuracy = accuracy_score(test_true_labels, predictions)
