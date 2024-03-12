@@ -17,8 +17,8 @@ async def send_telegram_message(bot_token, chat_id, message):
     await bot.send_message(chat_id=chat_id, text=message)
 
 #============================= DATA ACQUISITION & PREPROCESSING =============================
-image_shape = (128,128,3)
-target_size = (128,128)
+image_shape = (224,224,3)
+target_size = (224,224)
 
 def preprocessing(batch_size):
     # Define directories
@@ -29,7 +29,14 @@ def preprocessing(batch_size):
     BATCH_SIZE = batch_size
 
     # loading training data and rescaling it using ImageDataGenerator
-    train_datagen = ImageDataGenerator(dtype='float32', rescale= 1./255.)
+    train_datagen = ImageDataGenerator(dtype='float32', rescale= 1./255.,
+                                                        rotation_range=20,
+                                                        width_shift_range=0.2,
+                                                        height_shift_range=0.2,
+                                                        shear_range=0.2,
+                                                        zoom_range=0.2,
+                                                        horizontal_flip=True,)
+    
     train_generator = train_datagen.flow_from_directory(train_dir,
                                                     batch_size = BATCH_SIZE,
                                                     target_size = target_size,
@@ -72,10 +79,10 @@ def create_model():
         Conv2D(filters = 32 , kernel_size = 2, activation = 'relu',
         kernel_regularizer = regularizers.l2(weight_decay)),MaxPooling2D(pool_size = 2),
         
-        Dropout(0.4),
+        Dropout(0.5),
         Flatten(),
         Dense(128,activation='relu'),
-        Dropout(0.5),
+        Dropout(0.8),
         Dense(2,activation='sigmoid')
     ])
     print(model.summary())
