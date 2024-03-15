@@ -16,11 +16,75 @@ async def send_telegram_message(bot_token, chat_id, message):
     bot = Bot(token=bot_token)
     await bot.send_message(chat_id=chat_id, text=message)
 
+#=============================== K-FOLD CROSS VALIDATTION ==================================
+
+def k_fold_cross_validation(train_dir, valid_dir, num_classes, k=5, epochs=10, batch_size=32):
+    datagen = ImageDataGenerator(rescale=1./255)
+    train_generator = datagen.flow_from_directory(train_dir,
+                                                  target_size=(img_height, img_width),
+                                                  batch_size=batch_size,
+                                                  class_mode='categorical')
+    
+    valid_generator = datagen.flow_from_directory(valid_dir,
+                                                  target_size=(img_height, img_width),
+                                                  batch_size=batch_size,
+                                                  class_mode='categorical')
+
+    skf = StratifiedKFold(n_splits=k, shuffle=True)
+    accuracies = []
+    for train_index, val_index in skf.split(train_generator.filenames, train_generator.classes):
+        train_datagen = ImageDataGenerator(rescale=1./255)
+        val_datagen = ImageDataGenerator(rescale=1./255)
+        
+        train_generator_fold = train_datagen.flow_from_directory(train_dir,
+                                                                 target_size=(img_height, img_width),
+                                                                 batch_size=batch_size,
+                                                                 class_mode='categorical',
+                                                                 subset='training',
+                                                                 shuffle=True,
+                                                                 seed=42)
+        
+        val_generator_fold = val_datagen.flow_from_directory(train_dir,
+                                                             target_size=(img_height, img_width),
+                                                             batch_size=batch_size,
+                                                             class_mode='categorical',
+                                                             subset='validation',
+                                                             shuffle=True,
+                                                             seed=42)
+
+        input_shape = train_generator_fold.image_shape
+        model = create_cnn_model(input_shape, num_classes)
+        
+        model.fit(train_generator_fold,
+                  epochs=epochs,
+                  batch_size=batch_size,
+                  validation_data=val_generator_fold,
+                  verbose=0)
+        
+        _, accuracy = model.evaluate(valid_generator, verbose=0)
+        accuracies.append(accuracy)
+    
+    mean_accuracy = np.mean(accuracies)
+    std_accuracy = np.std(accuracies)
+    print(f'Mean accuracy: {mean_accuracy:.2f}, Standard deviation: {std_accuracy:.2f}')
+
+# Example usage:
+# Assuming you have train_dir, valid_dir containing the paths to your training and validation data folders
+# and num_classes indicating the number of classes in your classification task.
+# You would call k_fold_cross_validation(train_dir, valid_dir, num_classes)
+
+
+# Example usage:
+# Assuming you have train_dir, valid_dir containing the paths to your training and validation data folders
+# and num_classes indicating the number of classes in your classification task.
+# You would call k_fold_cross_validation(train_dir, valid_dir, num_classes)
+
+
 #============================= DATA ACQUISITION & PREPROCESSING =============================
 image_shape = (224,224,3)
 target_size = (224,224)
 
-def preprocessing(batch_size):
+def preprocessing(batch_size, target_size):
     # Define directories
     train_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/train"
     valid_dir = "/home/gerpapa/Wildfire-Classification-CNN/dataset/valid"
@@ -63,7 +127,7 @@ def preprocessing(batch_size):
     return generators
 
 #============================= MODEL ARCHITECURE ================================
-def create_model():
+def create_model(image_shape):
     # defining the coefficient that our regularizer will use
     weight_decay = 0.001
 
@@ -89,11 +153,11 @@ def create_model():
     return model
 
 #================================== GRID SEARCH =================================
-def grid_search(model):
-    model.compile(loss= 'binary_crossentropy', optimizer='adam',metrics=['AUC','acc'])
+def grid_search():
     # grid search parameters
     epochs = [100, 200, 300, 500]
     batch_size = [16,32,64,128,256]
+    image_shape = [(64,64,3),(128,128,3),(256,256,3),(512,512,3)]
     best_parameters = {}
     best_results = {}
     best_score = 0
@@ -101,16 +165,21 @@ def grid_search(model):
     # grid search execution
     for epoch in epochs:
         for batch in batch_size:
-            print(f"Training model with batch size {batch} and epochs {epoch}...")
-            generators = preprocessing(batch)
-            history = train_model(model, generators)
-            results = evaluate_model(model, generators)
-            print(f"Results: {results}")
+            for size in image_shape:
+                # create target size tuple
+                target = size[:-1]
 
-            if(results["result"]["accuracy"] > best_score):
-                best_score = results["result"]["accuracy"]
-                best_parameters = {"batch_size": batch, "epochs": epoch}
-                best_results = results
+                print(f"Training model with image size: {size} ,batch size {batch}, epochs {epoch}...")
+                generators = preprocessing(batch, target)
+                model = create_model(size)
+                history = train_model(model, generators)
+                results = evaluate_model(model, generators)
+                print(f"Results: {results}")
+
+                if(results["result"]["accuracy"] > best_score):
+                    best_score = results["result"]["accuracy"]
+                    best_parameters = {"batch_size": batch, "epochs": epoch, "size": size}
+                    best_results = results
     
     grid_results = {
         "best_parameters" : best_parameters,
@@ -190,11 +259,11 @@ def evaluate_model(model, generators):
 #================================= MAIN =================================
 
 async def main():
-    generators = preprocessing(32)
-    model = create_model()
-    train_model(model, generators)
-    ml_results = evaluate_model(model, generators)
-    #grid_results = grid_search(model)
+    #generators = preprocessing(32)
+    #model = create_model()
+    #train_model(model, generators)
+    #ml_results = evaluate_model(model, generators)
+    grid_results = grid_search()
 
     await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results)
 
