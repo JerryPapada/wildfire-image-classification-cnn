@@ -35,12 +35,12 @@ def compile_model(model):
     model.compile(loss='binary_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy','AUC','recall'])
-    print(model.summary())
+
     return model
 
 # train model function
 def train_model(model, train_generator, validation_generator, epochs):
-    early_stopping = EarlyStopping(monitor='val_loss', patience=6, restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 
     results = model.fit(
         train_generator,
@@ -148,14 +148,19 @@ def evaluate_model(model, test_generator):
 
 async def main():
     #SATELLITE DATASET
-    train = "/home/gerpapa/Wildfire-Classification-CNN/dataset/train"
-    validation = "/home/gerpapa/Wildfire-Classification-CNN/dataset/valid"
-    test = "/home/gerpapa/Wildfire-Classification-CNN/dataset/test"
+    #train = "/home/gerpapa/Wildfire-Classification-CNN/dataset/train"
+    #validation = "/home/gerpapa/Wildfire-Classification-CNN/dataset/valid"
+    #test = "/home/gerpapa/Wildfire-Classification-CNN/dataset/test"
+
+    #forest fire dataset
+    train = "/home/gerpapa/Wildfire-Classification-CNN/dataset/forest_fire/train"
+    validation = "/home/gerpapa/Wildfire-Classification-CNN/dataset/forest_fire/valid"
+    test = "/home/gerpapa/Wildfire-Classification-CNN/dataset/forest_fire/test"
     
     #dfire
-    #train = "/home/gerpapa/CNN-new/wildfire-cnn/data/output/train"
-    #validation = "/home/gerpapa/CNN-new/wildfire-cnn/data/output/val"
-    #test = "/home/gerpapa/CNN-new/wildfire-cnn/data/output/test"
+    #train = "/home/gerpapa/Wildfire-Classification-CNN/data/output/train"
+    #validation = "/home/gerpapa/Wildfire-Classification-CNN/data/output/val"
+    #test = "/home/gerpapa/Wildfire-Classification-CNN/data/output/test"
 
     train_generator, validation_generator, test_generator = create_generators(train, validation, test)
 
