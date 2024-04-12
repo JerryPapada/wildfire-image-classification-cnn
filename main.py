@@ -14,8 +14,18 @@ async def main():
     validation = "/home/gerpapa/Wildfire-Classification-CNN/dataset/valid"
     test = "/home/gerpapa/Wildfire-Classification-CNN/dataset/test"
 
+    # generators are universal for both pretrained and custom CNNs
     train_generator, validation_generator, test_generator = create_generators(train, validation, test)
 
+    #===== CUSTOM CNN ====#
+    model = build_model(input_shape=(hp.img_height, hp.img_width, 3))
+    model = compile_model(model)
+    
+    results = train_model(model, train_generator, validation_generator, epochs=hp.epochs)
+    ml_results = evaluate_model(model,test_generator)
+    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results)
+    #=====================#
+    '''
     # Load pre-trained models
     vgg16_model = VGG16(weights='imagenet', include_top=False, input_shape=(hp.img_height, hp.img_width, 3))
     vgg19_model = VGG19(weights='imagenet', include_top=False, input_shape=(hp.img_height, hp.img_width, 3))
@@ -63,6 +73,6 @@ async def main():
     await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_inception)
     await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_mobilenetv2)
     await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_densenet121)
-
+    '''
 if __name__ == "__main__":
     asyncio.run(main())

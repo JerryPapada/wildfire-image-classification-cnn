@@ -133,39 +133,3 @@ def modify_top_layers_for_binary_classification(model):
     modified_model = tf.keras.Model(inputs=model.input, outputs=predictions)
     
     return modified_model
-
-
-
-'''
-async def main():
-    #SATELLITE DATASET
-    #train = "/home/gerpapa/Wildfire-Classification-CNN/dataset/train"
-    #validation = "/home/gerpapa/Wildfire-Classification-CNN/dataset/valid"
-    #test = "/home/gerpapa/Wildfire-Classification-CNN/dataset/test"
-
-    #forest-fire dataset
-    train = "/home/gerpapa/Wildfire-Classification-CNN/dataset/forest_fire/train"
-    validation = "/home/gerpapa/Wildfire-Classification-CNN/dataset/forest_fire/valid"
-    test = "/home/gerpapa/Wildfire-Classification-CNN/dataset/forest_fire/test"
-    
-    #dfire
-    #train = "/home/gerpapa/Wildfire-Classification-CNN/data/output/train"
-    #validation = "/home/gerpapa/Wildfire-Classification-CNN/data/output/val"
-    #test = "/home/gerpapa/Wildfire-Classification-CNN/data/output/test"
-
-    train_generator, validation_generator, test_generator = create_generators(train, validation, test)
-
-    model = build_model(input_shape=(hp.img_height, hp.img_width, 3))
-    model = compile_model(model)
-    
-    results = train_model(model, train_generator, validation_generator, epochs=hp.epochs)
-    ml_results = evaluate_model(model,test_generator)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results)
-
-    return results
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
-
-'''
