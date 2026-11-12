@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -169,7 +170,7 @@ async def main():
     
     results = train_model(model, train_generator, validation_generator, epochs=hp.epochs)
     ml_results = evaluate_model(model,test_generator)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results)
 
     return results
 
