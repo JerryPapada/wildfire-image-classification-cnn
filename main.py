@@ -1,3 +1,4 @@
+import os
 from model_functions import build_model, compile_model, train_model, create_generators, evaluate_model, modify_top_layers_for_binary_classification
 from tensorflow.keras.applications import VGG16, VGG19, ResNet50, InceptionV3, MobileNetV2, DenseNet121
 from telegram import Bot
@@ -23,7 +24,7 @@ async def main():
     
     results = train_model(model, train_generator, validation_generator, epochs=hp.epochs)
     ml_results = evaluate_model(model,test_generator)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results)
     #=====================#
     '''
     # Load pre-trained models
@@ -67,12 +68,12 @@ async def main():
     ml_results_densenet121 = evaluate_model(densenet121_model, test_generator)
 
     # Telegram notification
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_vgg16)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_vgg19)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_resnet50)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_inception)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_mobilenetv2)
-    await send_telegram_message("6324537709:AAHjIuf4fEtFexsv8q3kh6o7oQdmg9zJ_qc", "6416416336", ml_results_densenet121)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results_vgg16)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results_vgg19)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results_resnet50)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results_inception)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results_mobilenetv2)
+    await send_telegram_message(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"], ml_results_densenet121)
     '''
 if __name__ == "__main__":
     asyncio.run(main())
