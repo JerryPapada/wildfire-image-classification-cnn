@@ -1,32 +1,24 @@
-# Wildfire Classification CNN
+# Wildfire Image Classification with CNNs
 
-thesis project - CNN for wildfire detection
+TensorFlow/Keras experiments for classifying wildfire imagery. The repository contains model/training code, preprocessing utilities, hyperparameter scripts, and a report.
 
-## Overview
+## Main files
 
-This repository contains the source code, documentation, and supporting assets for **Wildfire Classification CNN**. It is maintained as a focused project workspace with version-controlled implementation and project material.
+- `model.py` and `model_functions.py`: model construction, training, and evaluation helpers.
+- `main.py`: experiment entry point using transfer-learning backbones.
+- `resize.py` and `split_folder.py`: image preparation utilities.
+- `hyperparameters.py` and `hyperparameter_tuning/`: tuning configuration and work.
 
-## Repository contents
+## Requirements and data
 
-- `CNN Report v2.pdf`
-- `README.md`
-- `hyperparameter_tuning`
-- `hyperparameters.py`
-- `main.py`
-- `model.py`
-- `model_functions.py`
-- `requirements.txt`
-- `resize.py`
-- `split_folder.py`
-- `v0`
-- `wildfire.py`
-- `wildfire2.py`
-- `wildfire3.py`
+Install the packages listed in `requirements.txt` in a compatible Python environment. The expected train/validation/test image directories are not included in the repository's top-level tree. The inspected `main.py` uses machine-specific absolute dataset paths; update them to local dataset directories before running.
 
-## Getting started
+## Run
 
-Review the project files and any included configuration or documentation before running the application. Install dependencies using the package manager indicated by the project files, then use the repository's scripts, notebooks, or entry points for development and evaluation.
+After configuring the data paths and reviewing the notification behavior:
 
-## Development notes
+```bash
+python3 main.py
+```
 
-Keep generated artifacts, local configuration, credentials, and large datasets out of commits unless they are intentionally part of the project. Record significant setup requirements and experiment parameters alongside the relevant component.
+The training code also contains hard-coded Telegram bot credentials. Treat them as exposed and rotate them; do not reuse or publish replacements. The repository does not provide a verified dataset download command or claim any model accuracy here.
