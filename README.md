@@ -27,3 +27,8 @@ The resize and split utilities are separate preprocessing steps; inspect their e
 ## Credential warning
 
 main.py and model.py contain hard-coded Telegram bot credentials. Treat them as exposed and rotate/revoke them. The training workflow should not require a Telegram secret to be committed; do not publish replacement values. No model accuracy or dataset-independent result is claimed by this README.
+
+<!-- managed credential setup -->
+## Telegram configuration
+
+Optional notification calls read `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from the environment. Model training does not require Telegram. Revoke the previously committed bot token before reuse.
